@@ -46,7 +46,6 @@ const use_config = async (config) => {
             console.log('header:', data);
           });
         stream.on("close", ()=>{
-            console.log("we are done");
             console.timeEnd("analyze-text");
         });
         fs.createReadStream(path.join(__dirname, ...config_data.filepath))

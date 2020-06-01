@@ -4,6 +4,7 @@ const JSONSteam = require("JSONStream");
 const meta_parser = require("./metadata_parser");
 const text_parser = require("./text_parser");
 const post_meta = require("./post_meta");
+const beautify = require("./beautify");
 
 const use_config = async (config) => {
     let config_data;
@@ -31,8 +32,15 @@ const use_config = async (config) => {
                 data.messages.forEach(message => text_parser(message, result, temp_stats));
                 post_meta(result, temp_stats); 
                 let filename = data.name + "_" + data.id +".json";
-                fs.writeFile(path.join(__dirname, ...config_data.output, filename), JSON.stringify(result, null, 2), (err) =>{                if (err) throw err
+                fs.writeFile(path.join(__dirname, ...config_data.output, filename), JSON.stringify(result, null, 2), (err) =>{                
+                    if (err) throw err
                     console.log(`Finished writing ${data.name} to output...`);
+                    
+                });
+                filename = data.name + "_" + data.id +".txt";
+                fs.writeFile(path.join(__dirname, ...config_data.formatted_text, filename), beautify(result, config), (err) =>{                
+                    if (err) throw err
+                    console.log(`Finished writing ${data.name} to formatted output...`);
                     
                 });
                 // console.log(temp_stats);

@@ -14,8 +14,8 @@ const audio_length = (meta, temp) => {
     }
     meta.all.audio.all = moment.duration(meta.all.audio.all).humanize();
     for (member of Object.keys(meta.all.audio.members)){
-        let duration = moment.duration(meta.all.audio.members[member]);
-        meta.all.audio.members[member] = duration.humanize();
+        let duration = moment(meta.all.audio.members[member]);
+        meta.all.audio.members[member] = duration.format("HH:mm:ss");
     }
     for (year of Object.keys(meta.months)){
         if (meta.months[year].all.audio == undefined){
@@ -156,8 +156,8 @@ const ext_times = (meta, temp) => {
 }
 
 const parseTime = (seconds) => {
-    let result = Math.floor(seconds/3600) + ":" + Math.floor((seconds % 3600) / 60) + ":" + Math.round(seconds%60);;
-    return result;
+    let time = moment.unix(seconds).subtract(3, "hours").format("HH:mm:ss");
+    return time;
 }
 
 module.exports = post_meta_analysis;

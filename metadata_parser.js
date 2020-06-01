@@ -51,7 +51,7 @@ const audio_meta_parser = (message, stats, temp_stats, sender) => {
         };
     }
     if (stats.all.audio.members[sender] == undefined){
-        stats.all.audio.members[sender] = moment.duration(0, "seconds");
+        stats.all.audio.members[sender] = moment.unix(0).subtract(3, "hours");
     }
     let duration = message.duration_seconds;
     stats.all.audio.members[sender].add(duration, "seconds");
@@ -115,7 +115,6 @@ const active_days = (message, stats, temp_stats, sender) => {
                 all:{all_days: last_day.diff(message_date.clone().startOf("year"), "days")}
             };
         }
-        let hi;
     }
     // if new message happened earlier than the other messages before it 
     // else if (stats.months[message_date.year()].all.active_days.all.all_days < year_date_gap){
@@ -246,6 +245,6 @@ const hour_parser = (message, stats, temp_stats, sender) => {
         hour_stats[message_date.hour()].all.messages.members[sender] = 0;
     } 
     hour_stats[message_date.hour()].all.messages.members[sender]++;
-    hour_stats[message_date.hour()].all.messages.members.all++;
+    hour_stats[message_date.hour()].all.messages.all++;
 }
 module.exports = meta_parser;

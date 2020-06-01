@@ -32,6 +32,122 @@ const meta_parser = (message, stats, temp_stats) => {
     hour_parser(message, stats, temp_stats, sender);
 
     ext_time_parser(message, stats, temp_stats, sender);
+
+    active_days(message, stats, temp_stats, sender);
+
+    audio_meta_parser(message, stats, temp_stats, sender);
+}
+
+const audio_meta_parser = (message, stats, temp_stats, sender) => {
+    if (message.media_type == undefined || message.media_type != "voice_message"){
+        return
+    }
+    let message_date = moment(message.date);
+
+    if (stats.all.audio == undefined){
+        stats.all.audio = {
+            all: moment.duration(0, 'seconds'),
+            members: {}
+        };
+    }
+    if (stats.all.audio.members[sender] == undefined){
+        stats.all.audio.members[sender] = moment.duration(0, "seconds");
+    }
+    let duration = message.duration_seconds;
+    stats.all.audio.members[sender].add(duration, "seconds");
+    stats.all.audio.all.add(duration, "seconds");
+    if (stats.months[message_date.year()].all.audio == undefined){
+        stats.months[message_date.year()].all.audio = {
+            all: moment.duration(0, 'seconds'),
+            members: {}
+        };
+    }
+    if (stats.months[message_date.year()].all.audio.members[sender] == undefined){
+        stats.months[message_date.year()].all.audio.members[sender] = moment.duration(0, "seconds");
+    }
+    stats.months[message_date.year()].all.audio.members[sender].add(duration, "seconds");
+    stats.months[message_date.year()].all.audio.all.add(duration, "seconds");
+}
+
+const active_days = (message, stats, temp_stats, sender) => {
+    let message_date = moment(message.date);
+    let all_date_gap = moment().diff(message_date, "days");
+    // let year_date_gap = message_date.clone().endOf("year").diff(message_date, "days");
+
+    // define active days object
+    if (stats.all.active_days == undefined){
+        stats.all.active_days = {
+            all:{all_days: moment().diff(message_date, "days")}
+        };
+    }else if(stats.all.active_days.all.all_days < all_date_gap){
+        stats.all.active_days.all.all_days = all_date_gap;
+    }
+    // sender specific info stored in members object
+    if (stats.all.active_days.members == undefined){
+        stats.all.active_days.members = {};
+    }
+    
+    // from first message till current date
+    if (stats.all.active_days.members[sender] == undefined){
+        stats.all.active_days.members[sender] = {all_days: moment().diff(message_date, "days")};
+    }else if(stats.all.active_days.members[sender].all_days < all_date_gap){
+        stats.all.active_days.members[sender].all_days = all_date_gap;
+    }
+
+    // if year is undefined
+    if (stats.months[message_date.year()].all.active_days == undefined){
+    
+        // if the message's year is the current year then end date is current date else end of year
+        let last_day;
+        if (moment().year() == message_date.year()){
+            last_day = moment();
+        }else{
+            last_day = message_date.clone().endOf("year");
+        }
+        // If the prev year is definied (conversation happened in prev year) then consider days 365 (or 366)
+        // otherwise from start of first message of the year
+        if (stats.months[message_date.year() - 1] == undefined){
+            stats.months[message_date.year()].all.active_days = {
+                all:{all_days: last_day.diff(message_date, "days")}
+            };
+        }else{
+            stats.months[message_date.year()].all.active_days = {
+                all:{all_days: last_day.diff(message_date.clone().startOf("year"), "days")}
+            };
+        }
+        let hi;
+    }
+    // if new message happened earlier than the other messages before it 
+    // else if (stats.months[message_date.year()].all.active_days.all.all_days < year_date_gap){
+    //     stats.months[message_date.year()].all.active_days.all.all_days = year_date_gap;
+    // }
+    // inistantiate the yearly members
+    if (stats.months[message_date.year()].all.active_days.members == undefined){
+        stats.months[message_date.year()].all.active_days.members = {};
+    }
+    if (stats.months[message_date.year()].all.active_days.members[sender] == undefined){
+        // if the message's year is the current year then end date is current date else end of year
+        let last_day;
+        if (moment().year() == message_date.year()){
+            last_day = moment();
+        }else{
+            last_day = message_date.clone().endOf("year");
+        }
+        if (stats.months[message_date.year() - 1] == undefined){
+            stats.months[message_date.year()].all.active_days.members[sender] = {
+                all_days: last_day.diff(message_date, "days")
+            };
+        }else{
+            stats.months[message_date.year()].all.active_days.members[sender] = {
+                all_days: last_day.diff(message_date.clone().startOf("year"), "days")
+            };
+        }
+    }
+    // else if(stats.months[message_date.year()].all.active_days.members[sender].all_days < year_date_gap){
+    //     stats.months[message_date.year()].all.active_days.members[sender].all_days = year_date_gap;
+    // }
+    // console.log("Done");
+    
 }
 
 const ext_time_parser = (message, stats, temp_stats, sender) => {
@@ -88,20 +204,23 @@ const daily_parser = (message, stats, temp_stats, sender) => {
     let daily_stats = stats.daily;
     
     try {
-        if (daily_stats[message_date.dayOfYear()] === undefined ){
-            daily_stats[message_date.dayOfYear()] = {
+        if(daily_stats[message_date.year()] == undefined){
+            daily_stats[message_date.year()] = {}
+        }
+        if (daily_stats[message_date.year()][message_date.dayOfYear()] === undefined ){
+            daily_stats[message_date.year()][message_date.dayOfYear()] = {
                 all: {members: {[sender]: 0, all: 0}}
             };
-        }else if(daily_stats[message_date.dayOfYear()].all.members[sender] === undefined){
-            daily_stats[message_date.dayOfYear()].all.members[sender] = 0;
+        }else if(daily_stats[message_date.year()][message_date.dayOfYear()].all.members[sender] === undefined){
+            daily_stats[message_date.year()][message_date.dayOfYear()].all.members[sender] = 0;
         }
     }catch (err){
         console.log(stats);
-        console.log(daily_stats[message_date.dayOfYear()].all.members[sender]);
+        console.log(daily_stats[message_date.year()][message_date.dayOfYear()].all.members[sender]);
         throw err; 
     }
-    daily_stats[message_date.dayOfYear()].all.members[sender]++;
-    daily_stats[message_date.dayOfYear()].all.members.all++;
+    daily_stats[message_date.year()][message_date.dayOfYear()].all.members[sender]++;
+    daily_stats[message_date.year()][message_date.dayOfYear()].all.members.all++;
 
 }
 

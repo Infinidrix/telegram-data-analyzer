@@ -1,4 +1,4 @@
 {
-    "filepath": ["data", "result_huge.json"],
+    "filepath": ["data", "result.json"],
     "output": ["result"]
 }

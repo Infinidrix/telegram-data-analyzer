@@ -2,6 +2,36 @@ const moment = require("moment");
 
 const post_meta_analysis = (meta, temp) => {
     ext_times(meta, temp)
+
+    active_days(meta, temp);
+
+    audio_length(meta, temp);
+}
+
+const audio_length = (meta, temp) => {
+    meta.all.audio.all = moment.duration(meta.all.audio.all).humanize();
+    for (member of Object.keys(meta.all.audio.members)){
+        let duration = moment.duration(meta.all.audio.members[member]);
+        meta.all.audio.members[member] = duration.humanize();
+    }
+    for (year of Object.keys(meta.months)){
+        let duration = moment.duration(meta.months[year].all.audio.all);
+        meta.months[year].all.audio.all = duration.humanize();
+        for (member of Object.keys(meta.months[year].all.audio.members)){
+            let duration = moment.duration(meta.months[year].all.audio.members[member]);
+            meta.months[year].all.audio.members[member] = duration.humanize();
+        }
+    }
+}
+
+const active_days = (meta, temp) => {
+    let all_days = {all: 0};
+
+    for (year in meta.months){
+        meta.months[year].all.active_days.all.active_days = Object.keys(meta.daily[year]).length;
+        all_days.all += Object.keys(meta.daily[year]).length;
+    }
+    meta.all.active_days.all.active_days = all_days.all;
 }
 
 const ext_times = (meta, temp) => {

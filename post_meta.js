@@ -9,12 +9,18 @@ const post_meta_analysis = (meta, temp) => {
 }
 
 const audio_length = (meta, temp) => {
+    if (meta.all.audio == undefined){
+        return;
+    }
     meta.all.audio.all = moment.duration(meta.all.audio.all).humanize();
     for (member of Object.keys(meta.all.audio.members)){
         let duration = moment.duration(meta.all.audio.members[member]);
         meta.all.audio.members[member] = duration.humanize();
     }
     for (year of Object.keys(meta.months)){
+        if (meta.months[year].all.audio == undefined){
+            continue;
+        }
         let duration = moment.duration(meta.months[year].all.audio.all);
         meta.months[year].all.audio.all = duration.humanize();
         for (member of Object.keys(meta.months[year].all.audio.members)){

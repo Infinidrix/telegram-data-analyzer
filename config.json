@@ -1,5 +1,5 @@
 {
-    "filepath": ["data", "result_huge.json"],
+    "filepath": ["data", "result_huge2.json"],
     "output": ["result"],
     "formatted_text": ["beautify"]
 }

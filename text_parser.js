@@ -3,9 +3,6 @@ const text_parser = (message, result) => {
     let type = message.type;
     let media_type = message.media_type;
     let mime_type = message.mime_type;
-    if (message.actor == undefined && message.from == undefined){
-        // console.log(message);
-    }
     if (result.types == undefined) {
         result.types = {
             type: [],

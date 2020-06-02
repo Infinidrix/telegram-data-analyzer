@@ -33,13 +33,13 @@ const use_config = async (config) => {
                 post_meta(result, temp_stats); 
                 let filename = data.name + "_" + data.id +".json";
                 fs.writeFile(path.join(__dirname, ...config_data.output, filename), JSON.stringify(result, null, 2), (err) =>{                
-                    if (err) throw err
+                    if (err) console.log(err);
                     console.log(`Finished writing ${data.name} to output...`);
                     
                 });
                 filename = data.name + "_" + data.id +".txt";
                 fs.writeFile(path.join(__dirname, ...config_data.formatted_text, filename), beautify(result, config), (err) =>{                
-                    if (err) throw err
+                    if (err) console.log(err);
                     console.log(`Finished writing ${data.name} to formatted output...`);
                     
                 });

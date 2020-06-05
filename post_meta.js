@@ -3,9 +3,34 @@ const moment = require("moment");
 const post_meta_analysis = (meta, temp) => {
     ext_times(meta, temp)
 
+    ext_times_median(meta, temp)
+
     active_days(meta, temp);
 
     audio_length(meta, temp);
+}
+
+const ext_times_median = (meta, temp) => {
+    let result = {};
+    for (date of Object.keys(temp.ext_times)){
+        for (sender of Object.keys(temp.ext_times[date])){
+            if (result[sender] == undefined){
+                result[sender] = {first: [], last: []}
+            }
+            result[sender].first.push(temp.ext_times[date][sender].first)
+            result[sender].last.push(temp.ext_times[date][sender].last)
+        }
+    }
+    meta.all.median = {}
+    for (sender of Object.keys(result)){
+        result[sender].first.sort((a, b) =>(moment(a.format("HH:mm"), "HH:mm").isAfter(moment(b.format("HH:mm"), "HH:mm")))? 1: -1);
+        result[sender].last.sort((a, b) => (moment(a.format("HH:mm"), "HH:mm").isAfter(moment(b.format("HH:mm"), "HH:mm")))? 1: -1);
+        meta.all.median[sender] = {
+            first: result[sender].first[Math.floor(result[sender].first.length*5/10)].format("hh:mm a"),
+            last: result[sender].last[Math.floor(result[sender].last.length*5/10)].format("hh:mm a")
+        }
+    }
+
 }
 
 const audio_length = (meta, temp) => {
@@ -156,7 +181,7 @@ const ext_times = (meta, temp) => {
 }
 
 const parseTime = (seconds) => {
-    let time = moment.unix(seconds).subtract(3, "hours").format("HH:mm:ss");
+    let time = moment.unix(seconds).subtract(3, "hours").format("hh:mm A");
     return time;
 }
 

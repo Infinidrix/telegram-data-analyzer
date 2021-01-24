@@ -8,6 +8,23 @@ const post_meta_analysis = (meta, temp) => {
     active_days(meta, temp);
 
     audio_length(meta, temp);
+
+    text_aggregate(meta, temp);
+}
+
+const text_aggregate = (meta, temp) => {
+    var dict = meta.types.text_aggregate;
+    var items = Object.keys(dict).map(function(key) {
+        return [key, dict[key]];
+      });
+      
+    // Sort the array based on the second element
+    items = items.filter(item => item[1] > 10);
+    items.sort(function(first, second) {
+    return second[1] - first[1];
+    });
+    meta.types.text_aggregate = {};
+    items.forEach(pair => meta.types.text_aggregate[pair[0]] = pair[1])
 }
 
 const ext_times_median = (meta, temp) => {

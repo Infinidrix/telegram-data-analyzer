@@ -20,7 +20,7 @@ const use_config = async (config) => {
         let count = 0;
         let result;
         stream.on('data', function(data) {
-            if (1 == 1){
+            if (true){
                 result = {
                     months: {},
                     daily: {},
@@ -35,19 +35,14 @@ const use_config = async (config) => {
                 fs.writeFile(path.join(__dirname, ...config_data.output, filename), JSON.stringify(result, null, 2), (err) =>{                
                     if (err) console.log(err);
                     console.log(`Finished writing ${data.name} to output...`);
-                    
                 });
                 filename = data.name + "_" + data.id +".txt";
                 fs.writeFile(path.join(__dirname, ...config_data.formatted_text, filename), beautify(result, config), (err) =>{                
                     if (err) console.log(err);
                     console.log(`Finished writing ${data.name} to formatted output...`);
-                    
                 });
-                // console.log(temp_stats);
-                
                 
             }
-            // console.log(++count); 
           });
           //emits anything from _before_ the first match
           stream.on('header', function (data) {

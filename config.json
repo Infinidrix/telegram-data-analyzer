@@ -1,5 +1,5 @@
 {
     "filepath": ["data", "result.json"],
-    "output": ["result"],
+    "output": ["results"],
     "formatted_text": ["beautify"]
 }
